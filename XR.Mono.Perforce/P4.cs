@@ -219,7 +219,7 @@ namespace XR.Mono.Perforce
 
                     } else {
                         if ( st != null ) {
-                            st.Value += line;
+                            st.Value += line + Environment.NewLine;
                         }
                     }
 

@@ -51,6 +51,21 @@ namespace XR.Mono.Perforce.Tests
         }
 
         [Test]
+        public void GetHistory()
+        {
+            var p4 = CallLogin();
+            p4.SetWorkspace("hurricane");
+            var util = new P4Util( p4 );
+
+            var revs = util.GetRevisions( "nCipher/dev/comp/cutils/trunk/SConstruct" );
+            if ( revs != null ){
+                foreach ( var r in revs ){
+                    Console.WriteLine( "{0} {1}", r.Change, r.Description );
+                }
+            }
+        }
+
+        [Test]
         public void CreateWorkspace()
         {
             var p4 = CallLogin();

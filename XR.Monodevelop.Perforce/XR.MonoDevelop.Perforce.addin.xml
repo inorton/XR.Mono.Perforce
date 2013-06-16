@@ -1,0 +1,10 @@
+<Addin namespace = "XR.Monodevelop.Perforce"
+id = "XRMDPerforce"
+name = "Perforce Plugin"
+author = "Ian Norton"
+copyright = "BSD"
+url = "http://inorton.wordpress.com"
+description = "Provide Perforce support for Monodevelop"
+category = "Version Control"
+version = "0.1">
+</Addin>

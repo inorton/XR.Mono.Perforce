@@ -36,7 +36,7 @@ namespace XR.Mono.Perforce
                 var m = sess.RunTagged( sess.WorkspaceRoot, "fstat", localpath );
                 fstat.Clear();
                 fstat.AddRange( m );
-                return ( from t in m where t.Key == "IsMapped" select t.Key ).Count() == 1;
+                return ( from t in m where t.Key == "isMapped" select t.Key ).Count() == 1;
             } catch ( P4Exception ) {
                 return false;
             }
@@ -146,6 +146,20 @@ namespace XR.Mono.Perforce
         public string GetHeadRevisionText( string localpath ) 
         {
             return GetRevisionText( localpath, "#head" );
+        }
+
+        public List<P4Revision> GetRevisions( string localpath )
+        {
+            return GetRevisions( localpath, 1000 );
+        }
+
+        public List<P4Revision> GetRevisions( string localpath, int max )
+        {
+            if ( IsMapped( localpath ) ) {
+                var tags = sess.RunTagged( sess.WorkspaceRoot, "filelog", "-m", max.ToString(), "-l", localpath + "#head" );
+                return P4Revision.FromTags( tags );
+            }
+            return null;
         }
     }
 }
