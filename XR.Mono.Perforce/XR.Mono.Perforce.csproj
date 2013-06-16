@@ -39,7 +39,7 @@
     <Compile Include="P4.cs" />
     <Compile Include="P4Exception.cs" />
     <Compile Include="P4ShellTag.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="P4Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
