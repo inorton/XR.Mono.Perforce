@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.Mono.Perforce", "XR.Mono.Perforce\XR.Mono.Perforce.csproj", "{38E09771-65AA-4CD9-979F-D19CE2F23CB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.Mono.Perforce.Tests", "XR.Mono.Perforce.Tests\XR.Mono.Perforce.Tests.csproj", "{83AC5448-7466-42D9-8128-D0B1D5B7FC93}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38E09771-65AA-4CD9-979F-D19CE2F23CB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38E09771-65AA-4CD9-979F-D19CE2F23CB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38E09771-65AA-4CD9-979F-D19CE2F23CB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38E09771-65AA-4CD9-979F-D19CE2F23CB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83AC5448-7466-42D9-8128-D0B1D5B7FC93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83AC5448-7466-42D9-8128-D0B1D5B7FC93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83AC5448-7466-42D9-8128-D0B1D5B7FC93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83AC5448-7466-42D9-8128-D0B1D5B7FC93}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = XR.Mono.Perforce\XR.Mono.Perforce.csproj
+	EndGlobalSection
+EndGlobal
