@@ -40,6 +40,19 @@ namespace XR.Mono.Perforce
             return (from x in tmp where x.Key == "FullName" select x.Value).FirstOrDefault();
         }
 
+        public void SetWorkspace( string clientname ) 
+        {
+            Envs["P4CLIENT"] = clientname;
+        }
+
+        public string Workspace {
+            get {
+                if ( Envs.ContainsKey("P4CLIENT") )
+                    return Envs["P4CLIENT"];
+                return null;
+            }
+        }
+
         static string QuoteAgruments( params string[] args )
         {
             var sb = new StringBuilder();
