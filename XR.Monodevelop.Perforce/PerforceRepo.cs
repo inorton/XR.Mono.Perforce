@@ -52,6 +52,7 @@ namespace XR.Monodevelop.Perforce
                     var rr = new PerforceRevision( this, r.Timestamp, r.User, shortdesc ) {
                         P4Rev = r.Rev,
                         P4Change = r.Change,
+                        P4Action = r.Action,
                         FilePath = localFile,
                     };
                     rl.Add( rr );

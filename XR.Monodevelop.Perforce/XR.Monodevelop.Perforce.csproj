@@ -43,6 +43,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PerforceRepo.cs" />
     <Compile Include="PerforceRevision.cs" />
+    <Compile Include="PerforceVersionControl.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

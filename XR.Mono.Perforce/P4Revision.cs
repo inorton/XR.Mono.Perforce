@@ -11,6 +11,7 @@ namespace XR.Mono.Perforce
         public string Description { get; set; }
         public int Rev { get; set; }
         public int Change { get; set; }
+        public string Action { get; set; }
         public string User { get; set; }
         public DateTime Timestamp { get; set; }
 
@@ -29,21 +30,31 @@ namespace XR.Mono.Perforce
                         DepotFile = dpf
                     };
                     rv.Add(r);
+                    break;
                 }
                 if ( t.Key.StartsWith("change") ){
                     r.Change = Int32.Parse( t.Value );
+                    break;
                 }
                 if ( t.Key.StartsWith("desc") ){
                     r.Description = t.Value.Trim();
+                    break;
                 }
                 if ( t.Key.StartsWith("user") ){
                     r.User = t.Value;
+                    break;
                 }
                 if ( t.Key.StartsWith("time") ) {
                     var sec = Int32.Parse( t.Value );
                     var dt = new DateTime( 1970, 1, 1, 0, 0, 0 );
                     r.Timestamp = dt.AddSeconds( sec );
+                    break;
                 }
+                if ( t.Key.StartsWith("action") ) {
+                    r.Action = t.Value;
+                    break;
+                }
+
             }
 
             return rv;
