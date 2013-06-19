@@ -61,7 +61,7 @@
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">
-        <!---
+        <!--
         <SeparatorItem insertafter="XR.MonoDevelop.Perforce.Commands.CommitSolution">
         <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" />
         <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" />

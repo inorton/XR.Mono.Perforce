@@ -27,14 +27,40 @@ namespace XR.Mono.Perforce
 
         public List<P4ShellTag> Connect( string server )
         {
+            if ( string.IsNullOrEmpty(server) )
+                server = Environment.GetEnvironmentVariable("P4PORT");
             Envs["P4PORT"] = server;
+            return SessionInfo();
+        }
+
+        public List<P4ShellTag> SessionInfo()
+        {
             return RunTagged( Environment.CurrentDirectory, "info" );
+        }
+
+        public string GetCurrentP4Username()
+        {
+            var si = SessionInfo();
+            return FetchTagValue( si, "userName" );
+        }
+
+        public string FetchTagValue( List<P4ShellTag> tags, string key )
+        {
+            return ( from x in tags where x.Key == key select x.Value ).FirstOrDefault();
         }
 
         public string Login( string username, string password )
         {
-            Envs["P4USER"] = username.Trim();
-            Envs["P4PASSWD"] = password.Trim();
+            if ( string.IsNullOrEmpty(username) )
+                username = Environment.GetEnvironmentVariable("P4USER");
+            if ( string.IsNullOrEmpty(password) )
+                password = Environment.GetEnvironmentVariable("P4PASSWD");
+
+            if ( !string.IsNullOrEmpty(username) )
+                Envs["P4USER"] = username.Trim();
+
+            if ( !string.IsNullOrEmpty(password) )
+                Envs["P4PASSWD"] = password.Trim();
 
             var tmp = RunTagged( Environment.CurrentDirectory, "user", "-o" );
             return (from x in tmp where x.Key == "FullName" select x.Value).FirstOrDefault();
@@ -55,6 +81,12 @@ namespace XR.Mono.Perforce
 
         public void SetWorkspace( string clientname ) 
         {
+            if ( clientname == null )
+                clientname = Environment.GetEnvironmentVariable("P4CLIENT");
+
+            if ( clientname == null )
+                clientname = Environment.MachineName;
+
             Envs["P4CLIENT"] = clientname;
             var wsi = RunTagged( Environment.CurrentDirectory, "info" );
             var cr = from x in wsi where x.Key == "clientRoot" select x.Value;

@@ -16,6 +16,16 @@ namespace XR.MonoDevelop.Perforce
             return new PerforceRepo();
         }
 
+        public override Repository GetRepositoryReference(FilePath path, string id)
+        {
+            PerforceRepo rv = new PerforceRepo( path.CanonicalPath );
+            if ( !rv.ValidRepo ) {
+                if ( path.ParentDirectory == null ) return null;
+                return GetRepositoryReference( path.ParentDirectory, id );
+            }
+            return rv;
+        }
+
         public override IRepositoryEditor CreateRepositoryEditor(Repository repo)
         {
             return new UrlBasedRepositoryEditor( repo as PerforceRepo );

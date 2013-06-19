@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 
 using MonoDevelop.Core;
@@ -61,6 +62,8 @@ namespace XR.MonoDevelop.Perforce
 
     public class PerforceRepo : UrlBasedRepository
     {
+        public const string DefaultConfigFile = ".p4env";
+
         P4 p4 = null;
         P4Util util = null;
         P4Log Log = new P4Log();
@@ -68,6 +71,76 @@ namespace XR.MonoDevelop.Perforce
         {
             Log.Emit("new PerforceRepo()");
             Url = "p4://";
+        }
+
+        public bool ValidRepo { get; set; }
+
+        public PerforceRepo( FilePath someDir ) : this()
+        {
+            if ( Directory.Exists(someDir) ){
+                var cfg = FindP4CONFIGFile( someDir );
+                if ( cfg != null ) {
+                    if ( File.Exists( cfg ) ){
+                        var envs = ReadP4CONFIGFile( cfg );
+                        string server = null; // p4 default
+                        string user = null;
+                        string workspace = null;
+                        string password = null;
+
+                        envs.TryGetValue( "P4USER", out user );
+                        envs.TryGetValue( "P4PORT", out server );
+                        envs.TryGetValue( "P4CLIENT", out workspace );
+                        envs.TryGetValue( "P4PASSWD", out password );
+
+                        server = server ?? "perforce:1666";
+
+                        if ( server != null ) {
+                            Init( server, workspace, user, password );
+                        }
+                    }
+                }
+            }
+        }
+
+        static Dictionary<string,string> ReadP4CONFIGFile( string file )
+        {
+            var rv = new Dictionary<string,string>();
+            var lines = File.ReadAllLines( file );
+            foreach ( var l in lines )
+            {
+                var line = l.Trim();
+                if ( line.StartsWith("#") ) continue;
+
+                var tmp = line.Split( new char[] { '=' }, 2 );
+                if ( tmp.Length == 2 ) {
+                    rv[tmp[0]] = tmp[1];
+                }
+            }
+
+            return rv;
+        }
+
+        static string FindP4CONFIGFile( string startpath )
+        {
+            var env = Environment.GetEnvironmentVariable("P4CONFIG");
+            if ( env == null ) env = DefaultConfigFile;
+            return FindP4CONFIGFile( startpath, env );
+        }
+
+        static string FindP4CONFIGFile( string startpath, string env )
+        {
+            if ( string.IsNullOrEmpty( startpath ) )
+                return null;
+            if ( !Directory.Exists(startpath) )
+                return null;
+
+            var fp = new FilePath( startpath );
+            var tmp = Path.Combine( fp, env );
+            if ( File.Exists( tmp ) ){
+                return tmp;
+            }
+
+            return FindP4CONFIGFile( fp.ParentDirectory, env );
         }
 
         public PerforceRepo( string p4server, string workspace, string username, string password ) : this()
@@ -80,19 +153,39 @@ namespace XR.MonoDevelop.Perforce
 
         void Init( string p4server, string workspace, string username, string password )
         {
-            if( string.IsNullOrEmpty(password) ) return;
-            if ( connectedServer == null || connectedServer != p4server ){
-                p4 = new P4();
-                p4.Connect( p4server );
-            }
-            if ( connectedUser == null || connectedUser != username ){
-                p4.Login( username, password );
-                p4.SetWorkspace( workspace );
-            
+            lock ( Log ){
+                ValidRepo = false;
+
+                if ( connectedServer == null || connectedServer != p4server ){
+                    p4 = new P4();
+                    p4.Connect( p4server );
+
+                    if ( username == null ) {
+                        // get the username from p4, bypass login
+                        connectedUser = p4.GetCurrentP4Username();
+                    }
+                }
+
+                if ( password != null ){
+                    if ( connectedUser == null || connectedUser != username ){
+                        p4.Login( username, password );
+                        connectedUser = username;
+                    }
+                }
+
+                p4.SetWorkspace( workspace ); // set to requested or default
+
                 util = new P4Util( p4 );
-                connectedUser = username;
+                ValidRepo = true;
             }
-            //Url = "p4://{0}@{1}/{2}".Fmt( username, p4server, workspace );
+        }
+
+        public string WorkspaceRoot {
+            get {
+                if ( p4 != null )
+                    return p4.WorkspaceRoot;
+                return null;
+            }
         }
 
         public override string Url
@@ -262,7 +355,11 @@ namespace XR.MonoDevelop.Perforce
             if ( !ttmp.StartsWith( rtmp ) ) {
                 throw new InvalidOperationException("target directory must be within the workspace root");
             }
-            
+
+            // make a P4CONFIG file for us to remember this by
+
+
+
             // since we don't necessarily want to sync the entire world, do nothing about that here.
             
         }
