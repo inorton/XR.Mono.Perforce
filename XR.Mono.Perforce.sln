@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.Mono.Perforce", "XR.Mono
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.Mono.Perforce.Tests", "XR.Mono.Perforce.Tests\XR.Mono.Perforce.Tests.csproj", "{83AC5448-7466-42D9-8128-D0B1D5B7FC93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.MonoDevelop.Perforce", "XR.Monodevelop.Perforce\XR.MonoDevelop.Perforce.csproj", "{C63199E6-D056-4970-A047-669FF2A43E2F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XR.MonoDevelop.Perforce", "XR.MonoDevelop.Perforce\XR.MonoDevelop.Perforce.csproj", "{C63199E6-D056-4970-A047-669FF2A43E2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
