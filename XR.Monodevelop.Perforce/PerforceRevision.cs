@@ -5,7 +5,7 @@ using MonoDevelop.VersionControl;
 using XR.Mono.Perforce;
 using System.Linq;
 
-namespace XR.Monodevelop.Perforce
+namespace XR.MonoDevelop.Perforce
 {
     public class PerforceRevision : Revision
     {

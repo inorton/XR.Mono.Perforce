@@ -41,6 +41,7 @@
     <Compile Include="P4ShellTag.cs" />
     <Compile Include="P4Util.cs" />
     <Compile Include="P4Revision.cs" />
+    <Compile Include="StringHelpers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
