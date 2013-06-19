@@ -44,6 +44,10 @@ namespace XR.MonoDevelop.Perforce
 
         #endregion
 
+        public override string ToString()
+        {
+            return "@{0}".Fmt( P4Change );
+        }
     }
 }
 

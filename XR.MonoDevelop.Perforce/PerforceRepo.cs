@@ -222,6 +222,52 @@ namespace XR.MonoDevelop.Perforce
             }
         }
 
+        protected override VersionControlOperation GetSupportedOperations(VersionInfo vinfo)
+        {
+            if ( vinfo.IsDirectory ) {
+                return VersionControlOperation.Update;
+            }
+            VersionControlOperation rv = VersionControlOperation.None;
+            if ( File.Exists( vinfo.LocalPath ) )
+            {
+                if ( !vinfo.IsVersioned ) {
+                    rv = VersionControlOperation.Add;
+                } else {
+                    rv |= VersionControlOperation.Annotate|VersionControlOperation.Log;
+                }
+                if ( (vinfo.Status & VersionStatus.Modified )== VersionStatus.Modified ) {
+                    rv |= VersionControlOperation.Revert|VersionControlOperation.Commit;
+                } else {
+                    rv |= VersionControlOperation.Update|VersionControlOperation.Remove;
+                }
+            }
+            return rv;
+        }
+
+        public override Annotation[] GetAnnotations(FilePath repositoryPath)
+        {
+            if ( File.Exists(repositoryPath.FullPath) ){
+                if ( util.IsMapped(repositoryPath.FullPath) ) {
+                    var tags = p4.RunTagged( WorkspaceRoot, "annotate", repositoryPath.FullPath );
+                    var rv = new List<Annotation>();
+
+                    foreach ( var t in tags ) {
+                        if ( t.Key == "lower" ) {
+                            var r = util.GetRevisions( repositoryPath.FullPath + "#" + t.Value, 1).FirstOrDefault();
+                            if ( r != null ) {
+                                var a = new Annotation( t.Value, r.User, r.Timestamp );
+                                rv.Add(a);
+                            }
+                        }
+                    }
+
+                    return rv.ToArray();
+                }
+            }
+
+            return base.GetAnnotations(repositoryPath);
+        }
+
         #region implemented abstract members of UrlBasedRepository
 
         public override string[] SupportedProtocols
@@ -284,7 +330,9 @@ namespace XR.MonoDevelop.Perforce
                 }
                 foreach ( var r in revs ) 
                 {
-                    var shortdesc = r.Description.Replace( Environment.NewLine, " " ).Substring(0,40);
+                    var shortdesc = r.Description;
+                    if ( shortdesc.Length > 40 )
+                        shortdesc = r.Description.Replace( Environment.NewLine, " " ).Substring(0,40);
                     if ( r.Description.Length > 40 ) shortdesc += "..";
                     var rr = new PerforceRevision( this, r.Timestamp, r.User, shortdesc ) {
                         P4Rev = r.Rev,
@@ -301,12 +349,49 @@ namespace XR.MonoDevelop.Perforce
 
         protected override IEnumerable<VersionInfo> OnGetVersionInfo(IEnumerable<FilePath> paths, bool getRemoteStatus)
         {
-            throw new NotImplementedException();
+            var rv = new List<VersionInfo>();
+            foreach ( var f in paths )
+            {
+                if ( Directory.Exists(f.FullPath) ) continue;
+                Log.Emit("OnGetVersionInfo() {0}", f);
+                var stat = util.FStat( f.FullPath );
+                // mapped or edited
+                if ( stat != null && p4.HasTagValue( stat, "isMapped" ) ) {
+                    var haverev = Int32.Parse( p4.FetchTagValue( stat, "haveRev" ) );
+                    var headrev = Int32.Parse( p4.FetchTagValue( stat, "headRev" ) );
+                    var _have = util.GetRevisions( f.FullPath + "#" + haverev, 1 ).FirstOrDefault();
+                    var _head = util.GetRevisions( f.FullPath + "#" + headrev, 1 ).FirstOrDefault();
+
+                    if ( _head != null && _have != null ){
+                        var state = VersionStatus.Versioned;
+                        var head = new PerforceRevision( this, _head.Timestamp, _head.User, _head.Description ) {
+                            P4Action = _head.Action,
+                            P4Rev = _head.Rev,
+                            P4Change = _head.Change,
+                        };
+                        var have = new PerforceRevision( this, _have.Timestamp, _have.User, _have.Description ){
+                            P4Action = _have.Action,
+                            P4Rev = _have.Rev,
+                            P4Change = _have.Change,
+                        };
+
+                        if ( have.P4Action == "edit" ) 
+                            state |= VersionStatus.Modified;
+
+                        rv.Add( new VersionInfo( f, p4.FetchTagValue( stat, "depotFile" ), false, 
+                                                state, 
+                                                have, 
+                                                VersionStatus.Versioned,
+                                                head ));
+                    }
+                }
+            }
+            return rv;
         }
 
         protected override VersionInfo[] OnGetDirectoryVersionInfo(FilePath localDirectory, bool getRemoteStatus, bool recursive)
         {
-            throw new NotImplementedException();
+            return new VersionInfo[] { VersionInfo.CreateUnversioned( localDirectory, true ) };
         }
 
         protected override Repository OnPublish(string serverPath, FilePath localPath, FilePath[] files, string message, IProgressMonitor monitor)
@@ -356,17 +441,18 @@ namespace XR.MonoDevelop.Perforce
                 throw new InvalidOperationException("target directory must be within the workspace root");
             }
 
-            // make a P4CONFIG file for us to remember this by
-
-
-
             // since we don't necessarily want to sync the entire world, do nothing about that here.
             
         }
 
         protected override void OnRevert(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
         {
-            throw new NotImplementedException();
+            foreach ( var f in localPaths ) 
+            {
+                if ( util.IsEdited( f.FullPath ) ){
+                    util.Revert( f.FullPath, true );
+                }
+            }
         }
 
         protected override void OnRevertRevision(FilePath localPath, Revision revision, IProgressMonitor monitor)
@@ -381,7 +467,11 @@ namespace XR.MonoDevelop.Perforce
 
         protected override void OnAdd(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
         {
-            throw new NotImplementedException();
+            foreach( var f in localPaths ) {
+                if ( !util.IsMapped( f.FullPath ) ){
+                    util.Add( f.FullPath );
+                }
+            }
         }
 
         protected override string OnGetTextAtRevision(FilePath repositoryPath, Revision revision)
@@ -391,7 +481,17 @@ namespace XR.MonoDevelop.Perforce
 
         protected override RevisionPath[] OnGetRevisionChanges(Revision revision)
         {
-            throw new NotImplementedException();
+            var rv = new List<RevisionPath>();
+            var pr = revision as PerforceRevision;
+            if ( pr != null )
+            {
+                var ch = pr.P4Change;
+                if ( ch > 0 ) {
+                    // possibly we do p4 describe here?
+                }
+            }
+
+            return rv.ToArray();
         }
 
         #endregion

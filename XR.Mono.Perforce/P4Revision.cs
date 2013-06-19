@@ -30,29 +30,29 @@ namespace XR.Mono.Perforce
                         DepotFile = dpf
                     };
                     rv.Add(r);
-                    break;
+                    continue;
                 }
                 if ( t.Key.StartsWith("change") ){
                     r.Change = Int32.Parse( t.Value );
-                    break;
+                    continue;
                 }
                 if ( t.Key.StartsWith("desc") ){
                     r.Description = t.Value.Trim();
-                    break;
+                    continue;
                 }
                 if ( t.Key.StartsWith("user") ){
                     r.User = t.Value;
-                    break;
+                    continue;
                 }
                 if ( t.Key.StartsWith("time") ) {
                     var sec = Int32.Parse( t.Value );
                     var dt = new DateTime( 1970, 1, 1, 0, 0, 0 );
                     r.Timestamp = dt.AddSeconds( sec );
-                    break;
+                    continue;
                 }
                 if ( t.Key.StartsWith("action") ) {
                     r.Action = t.Value;
-                    break;
+                    continue;
                 }
 
             }

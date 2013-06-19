@@ -155,8 +155,17 @@ namespace XR.Mono.Perforce
 
         public List<P4Revision> GetRevisions( string localpath, int max )
         {
+            var start = "#head";
+            if ( localpath.Contains("#") ) {
+                var tmp = localpath.Split( new char[] { '#' }, 2 );
+                if ( tmp.Length == 2 ) {
+                    localpath = tmp[0];
+                    start = "#" + tmp[1];
+                }
+            }
+
             if ( IsMapped( localpath ) ) {
-                var tags = sess.RunTagged( sess.WorkspaceRoot, "filelog", "-m", max.ToString(), "-l", localpath + "#head" );
+                var tags = sess.RunTagged( sess.WorkspaceRoot, "filelog", "-m", max.ToString(), "-l", localpath + start );
                 return P4Revision.FromTags( tags );
             }
             return null;

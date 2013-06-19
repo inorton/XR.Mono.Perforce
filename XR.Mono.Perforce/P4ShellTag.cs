@@ -12,5 +12,10 @@ namespace XR.Mono.Perforce
         public int Index { get; set; }
         public string Key { get; set; }
         public string Value { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("[P4ShellTag: {0}={1}]", Key, Value);
+        }
     }
 }
