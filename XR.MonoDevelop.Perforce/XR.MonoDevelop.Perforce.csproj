@@ -8,8 +8,8 @@
     <ProjectGuid>{C63199E6-D056-4970-A047-669FF2A43E2F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>XR.MonoDevelop.Perforce</RootNamespace>
-    <AssemblyName>XR.Monodevelop.Perforce</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AssemblyName>XR.MonoDevelop.Perforce</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +21,17 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <Commandlineparameters>xterm</Commandlineparameters>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Execute" command="/opt/mono/lib/monodevelop/bin/MonoDevelop.exe">
+          <EnvironmentVariables>
+            <Variable name="MONODEVELOP_DEV_ADDINS" value="${TargetDir}" />
+            <Variable name="XR_MDP4_LOG" value="${TargetDir}/mdp4.log" />
+
+          </EnvironmentVariables>
+		</Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -42,6 +53,12 @@
     <Reference Include="MonoDevelop.Ide">
       <HintPath>..\..\..\..\..\..\opt\mono\lib\monodevelop\bin\MonoDevelop.Ide.dll</HintPath>
     </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,14 +70,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="XR.MonoDevelop.Perforce.addin.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\XR.Mono.Perforce\XR.Mono.Perforce.csproj">
       <Project>{38E09771-65AA-4CD9-979F-D19CE2F23CB5}</Project>
       <Name>XR.Mono.Perforce</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XR.MonoDevelop.Perforce.addin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

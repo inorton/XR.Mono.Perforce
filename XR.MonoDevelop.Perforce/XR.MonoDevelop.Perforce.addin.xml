@@ -13,9 +13,9 @@
     </Runtime>
 
     <Dependencies>
-        <Addin id="Core" version="3.1.0"/>
-        <Addin id="Ide" version="3.1.0"/>
-        <Addin id="VersionControl" version="3.1.0"/>
+        <Addin id="Core" version="4.0.4"/>
+        <Addin id="Ide" version="4.0.4"/>
+        <Addin id="VersionControl" version="4.0.4"/>
     </Dependencies>
     
     <Extension path="/MonoDevelop/VersionControl/VersionControlSystems">
@@ -61,8 +61,12 @@
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">
-        <SeparatorItem insertafter="XR.MonoDevelop.Perforce.Commands.CommitSolution"/>
+        <!---
+        <SeparatorItem insertafter="XR.MonoDevelop.Perforce.Commands.CommitSolution">
         <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" />
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" />
+        </SeparatorItem>
+         -->
         <!--
         <ItemSet id = "SwitchToBranch" _label = "Switch to Branch" autohide="true">
             <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.SwitchToBranch"/>
@@ -99,13 +103,16 @@
         <NodeBuilder id = "VersionControlNodeExtension" class = "XR.MonoDevelop.Perforce.PerforceNodeBuilderExtension"/>
     </Extension>
     
+    <!---
     <Extension path = "/MonoDevelop/VersionControl/CommitDialogExtensions">
         <Class class="XR.MonoDevelop.Perforce.PerforceSubmitDialogExtension" />
     </Extension>
     
+    
     <Extension path = "/MonoDevelop/Ide/GlobalOptionsDialog/VersionControl">
         <Section id = "Perforce" _label = "Perforce" class = "XR.MonoDevelop.Perforce.PerforceOptionsPanel" />
     </Extension>
+    -->
     
     <Extension path = "/MonoDevelop/Core/StockIcons">
         <StockIcon stockid = "vc-git-tag" resource = "tag_blue.png"/>

@@ -52,5 +52,16 @@ namespace XR.MonoDevelop.Perforce
             }
         }
     }
+
+    public class SubmitCommandHandler : PerforceCommandHandler 
+    {
+        protected override void Run()
+        {
+            var wob = GetCurrentSelectedObject();
+            var repo = GetCurrentRepo();
+            
+            throw new NotImplementedException("Commit");
+        }
+    }
 }
 

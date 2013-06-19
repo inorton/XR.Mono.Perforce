@@ -13,12 +13,12 @@ namespace XR.MonoDevelop.Perforce
 
         protected override Repository OnCreateRepositoryInstance()
         {
-            throw new NotImplementedException();
+            return new PerforceRepo();
         }
 
         public override IRepositoryEditor CreateRepositoryEditor(Repository repo)
         {
-            throw new NotImplementedException();
+            return new UrlBasedRepositoryEditor( repo as PerforceRepo );
         }
 
         public override string Name
