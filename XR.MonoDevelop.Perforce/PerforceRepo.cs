@@ -465,6 +465,21 @@ namespace XR.MonoDevelop.Perforce
             throw new NotImplementedException();
         }
 
+        public virtual void OnEdit(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
+        {
+            Log.MonitorStart( monitor, localPaths.Length, "Edit files" );
+            foreach ( var f in localPaths )
+            {
+                if ( File.Exists(f.FullPath) ) {
+                    if ( util.IsMapped( f.FullPath ) ) {
+                        util.Edit( f.FullPath );
+                        Log.MonitorStep( monitor, 1 );
+                    }
+                }
+            }
+            Log.MonitorEnd( monitor );
+        }
+
         protected override void OnAdd(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
         {
             foreach( var f in localPaths ) {

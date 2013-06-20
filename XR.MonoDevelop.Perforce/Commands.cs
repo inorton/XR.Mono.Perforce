@@ -53,6 +53,20 @@ namespace XR.MonoDevelop.Perforce
         }
     }
 
+    public class EditCommandHandler : PerforceCommandHandler
+    {
+        protected override void Run(object dataItem)
+        {
+            var wob = GetCurrentSelectedObject();
+            var repo = GetCurrentRepo();
+            
+            if ( repo != null && wob != null){
+
+                repo.Update( wob.ItemDirectory.CanonicalPath, true, null );
+            }
+        }
+    }
+
     public class SubmitCommandHandler : PerforceCommandHandler 
     {
         protected override void Run()

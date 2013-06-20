@@ -24,6 +24,11 @@
     
     <Extension path = "/MonoDevelop/Ide/Commands/VersionControl">
 
+        <Command id = "MonoDevelop.VersionControl.Perforce.Commands.Edit" 
+            _label = "Edit file..."
+            defaultHandler = "MonoDevelop.VersionControl.Perforce.EditCommandHandler"
+            description = "Mark a file for edit."/>
+            
         <Command id = "MonoDevelop.VersionControl.Perforce.Commands.Submit" 
             _label = "Submit Changes..."
             defaultHandler = "MonoDevelop.VersionControl.Perforce.SubmitCommandHandler"
@@ -61,26 +66,13 @@
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">
-        <!--
-        <SeparatorItem insertafter="XR.MonoDevelop.Perforce.Commands.CommitSolution">
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" />
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" />
-        </SeparatorItem>
-         -->
-        <!--
-        <ItemSet id = "SwitchToBranch" _label = "Switch to Branch" autohide="true">
-            <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.SwitchToBranch"/>
+        
+        <ItemSet id="Perforce" _label="Perforce">
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label="Submit" />
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" _label="Sync" />
         </ItemSet>
-        <SeparatorItem />
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.Merge"/>
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.Rebase"/>
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.ManageBranches"/>
-        <SeparatorItem />
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.Stash"/>
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.StashPop"/>
-        <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.ManageStashes"/>
-        <SeparatorItem />
-        -->
+        
+        
     </Extension>
     
     <!--
@@ -94,7 +86,10 @@
     -->
     
     <Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/VersionControl">
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" insertbefore="MonoDevelop.VersionControl.Commands.Publish"/>
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label = "Submit"
+        insertbefore="MonoDevelop.VersionControl.Commands.Publish"/>
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Edit" _label = "Edit"
+         insertbefore="XR.MonoDevelop.Perforce.Commands.Submit"/>
         <!-- <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.Merge"/>
         <SeparatorItem /> -->
     </Extension>
