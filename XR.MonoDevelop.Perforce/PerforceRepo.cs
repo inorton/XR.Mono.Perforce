@@ -402,7 +402,10 @@ namespace XR.MonoDevelop.Perforce
         protected override void OnUpdate(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
         {
             Log.Emit("OnUpdate recurse={0}", recurse );
-            if ( recurse ) return;
+            if ( recurse ) {
+                if ( localPaths.Length != 1 ) return;
+            }
+
             if ( monitor != null ) monitor.BeginTask("p4 sync", localPaths.Length);
 
             foreach ( var f in localPaths ){

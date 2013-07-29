@@ -124,6 +124,7 @@ namespace XR.Mono.Perforce
             if ( recurse ) 
             {
                 localpath = localpath.TrimEnd( Path.DirectorySeparatorChar );
+                localpath += Path.DirectorySeparatorChar.ToString();
                 localpath += "...";
             }
 

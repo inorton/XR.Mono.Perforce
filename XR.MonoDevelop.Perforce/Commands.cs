@@ -20,6 +20,7 @@ namespace XR.MonoDevelop.Perforce
     {
         public IWorkspaceObject GetCurrentSelectedObject()
         {
+
             IWorkspaceObject wob = IdeApp.ProjectOperations.CurrentSelectedSolutionItem;
             if ( wob == null )
                 wob = IdeApp.ProjectOperations.CurrentSelectedWorkspaceItem;
@@ -46,9 +47,9 @@ namespace XR.MonoDevelop.Perforce
         {
             var wob = GetCurrentSelectedObject();
             var repo = GetCurrentRepo();
-
             if ( repo != null && wob != null){
-                repo.Update( wob.ItemDirectory.CanonicalPath, true, null );
+                using ( var m = VersionControlService.GetProgressMonitor( "Sync", VersionControlOperationType.Pull ) )
+                    repo.Update( wob.ItemDirectory.CanonicalPath, true, m );
             }
         }
     }

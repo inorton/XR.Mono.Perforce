@@ -23,100 +23,42 @@
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/Commands/VersionControl">
-
-        <Command id = "MonoDevelop.VersionControl.Perforce.Commands.Edit" 
-            _label = "Edit file..."
-            defaultHandler = "MonoDevelop.VersionControl.Perforce.EditCommandHandler"
-            description = "Mark a file for edit."/>
-            
-        <Command id = "MonoDevelop.VersionControl.Perforce.Commands.Submit" 
+        <!--- define 'new' commands here -->
+        <Command id = "XR.MonoDevelop.Perforce.Commands.Submit" 
             _label = "Submit Changes..."
-            defaultHandler = "MonoDevelop.VersionControl.Perforce.SubmitCommandHandler"
+            defaultHandler = "XR.MonoDevelop.Perforce.SubmitCommandHandler"
             description = "Submit changes to the perforce server."/>
-            
-            <!--
-            
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.SwitchToBranch" 
-            _label = "Switch to Branch"
-            type="radio|array"
-            defaultHandler = "MonoDevelop.VersionControl.Git.SwitchToBranchHandler"
-            description = "Switch to branch."/>
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.ManageBranches" 
-            _label = "Manage Branches and Remotes"
-            defaultHandler = "MonoDevelop.VersionControl.Git.ManageBranchesHandler" />
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.Merge" 
-            _label = "Merge Branch..."
-            defaultHandler = "MonoDevelop.VersionControl.Git.MergeBranchHandler" />
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.Rebase" 
-            _label = "Rebase to Branch..."
-            defaultHandler = "MonoDevelop.VersionControl.Git.RebaseBranchHandler" />
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.Stash" 
-            _label = "Stash..."
-            description = "Stash the changes in a dirty working directory away."
-            defaultHandler = "MonoDevelop.VersionControl.Git.StashHandler" />
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.StashPop" 
-            _label = "Pop stash"
-            description = "Remove a single stashed state from the stash list and apply it on top of the current working tree state."
-            defaultHandler = "MonoDevelop.VersionControl.Git.StashPopHandler" />
-        <Command id = "MonoDevelop.VersionControl.Git.Commands.ManageStashes" 
-            _label = "Manage stashes"
-            defaultHandler = "MonoDevelop.VersionControl.Git.ManageStashesHandler" />
-            
-            -->
+        <Command id = "XR.MonoDevelop.Perforce.Commands.Sync" 
+            _label = "Sync ..."
+            defaultHandler = "XR.MonoDevelop.Perforce.SyncCommandHandler"
+            description = "Sync with perforce"/>
     </Extension>
     
-    <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">
-        
+    <!-- hook the above commands into things using the extensions below -->
+    
+    <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">       
         <ItemSet id="Perforce" _label="Perforce">
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label="Submit" />
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" _label="Sync" />
-        </ItemSet>
-        
-        
-    </Extension>
-    
-    <!--
-    
-    <Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
-        <ItemSet id = "SwitchToBranch" _label = "Switch to Branch" autohide="true" insertafter = "VersionControl">
-            <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.SwitchToBranch"/>
+            <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" />
+            <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" />
         </ItemSet>
     </Extension>
-    
-    -->
-    
+
     <Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/VersionControl">
         <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label = "Submit"
         insertbefore="MonoDevelop.VersionControl.Commands.Publish"/>
+        
         <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Edit" _label = "Edit"
          insertbefore="XR.MonoDevelop.Perforce.Commands.Submit"/>
-        <!-- <CommandItem id = "MonoDevelop.VersionControl.Git.Commands.Merge"/>
-        <SeparatorItem /> -->
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/Pads/ProjectPad">
         <NodeBuilder id = "VersionControlNodeExtension" class = "XR.MonoDevelop.Perforce.PerforceNodeBuilderExtension"/>
     </Extension>
-    
-    <!---
-    <Extension path = "/MonoDevelop/VersionControl/CommitDialogExtensions">
-        <Class class="XR.MonoDevelop.Perforce.PerforceSubmitDialogExtension" />
-    </Extension>
-    
-    
-    <Extension path = "/MonoDevelop/Ide/GlobalOptionsDialog/VersionControl">
-        <Section id = "Perforce" _label = "Perforce" class = "XR.MonoDevelop.Perforce.PerforceOptionsPanel" />
-    </Extension>
-    -->
-    
+
     <Extension path = "/MonoDevelop/Core/StockIcons">
         <StockIcon stockid = "vc-git-tag" resource = "tag_blue.png"/>
         <StockIcon stockid = "vc-git-source" resource = "server.png"/>
         <StockIcon stockid = "vc-git-branch" resource = "arrow_branch.png"/>
     </Extension>
-    
-<!--    <Extension path = "/MonoDevelop/Ide/ProjectFeatures">
-        <Class class = "MonoDevelop.VersionControl.Git.GitSupportFeature" />
-    </Extension>
--->
+
 </Addin>
