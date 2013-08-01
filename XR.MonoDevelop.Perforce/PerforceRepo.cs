@@ -33,14 +33,14 @@ namespace XR.MonoDevelop.Perforce
             }
         }
 
-        public void MonitorStart( IProgressMonitor monitor, int total, string fmt, params string[] args )
+        public void MonitorStart( IProgressMonitor monitor, int total, string fmt, params object[] args )
         {
             Emit( fmt, args );
             if ( monitor == null ) return;
             monitor.BeginTask( string.Format( fmt, args ), total );
         }
 
-        public void MonitorSuccess( IProgressMonitor monitor, string fmt, params string[] args )
+        public void MonitorSuccess( IProgressMonitor monitor, string fmt, params object[] args )
         {
             Emit( fmt, args );
             if ( monitor == null ) return;
@@ -224,23 +224,32 @@ namespace XR.MonoDevelop.Perforce
 
         protected override VersionControlOperation GetSupportedOperations(VersionInfo vinfo)
         {
-            if ( vinfo.IsDirectory ) {
-                return VersionControlOperation.Update;
-            }
             VersionControlOperation rv = VersionControlOperation.None;
-            if ( File.Exists( vinfo.LocalPath ) )
-            {
-                if ( !vinfo.IsVersioned ) {
-                    rv = VersionControlOperation.Add;
-                } else {
-                    rv |= VersionControlOperation.Annotate|VersionControlOperation.Log;
+            if ( vinfo.IsDirectory ) {
+                rv = ( VersionControlOperation.Update | VersionControlOperation.Commit | VersionControlOperation.Revert );
+            } else {
+
+                if ( File.Exists( vinfo.LocalPath ) )
+                {
+                    if ( !vinfo.IsVersioned ) {
+                        rv = VersionControlOperation.Add;
+                    } else {
+                        rv |= VersionControlOperation.Annotate|VersionControlOperation.Log;
                 }
-                if ( (vinfo.Status & VersionStatus.Modified )== VersionStatus.Modified ) {
-                    rv |= VersionControlOperation.Revert|VersionControlOperation.Commit;
-                } else {
-                    rv |= VersionControlOperation.Update|VersionControlOperation.Remove;
+                    if ( (vinfo.Status & VersionStatus.Modified )== VersionStatus.Modified ) {
+                        rv |= VersionControlOperation.Revert|VersionControlOperation.Commit;
+                    } else {
+                        rv |= VersionControlOperation.Update|VersionControlOperation.Remove;
+                    }
                 }
             }
+            Log.Emit("{0}",vinfo.LocalPath);
+            Log.Emit("{0}",vinfo.Status);
+            foreach ( var n in Enum.GetNames( typeof(VersionControlOperation) ) ){
+                var v = (int)Enum.Parse( typeof(VersionControlOperation), n.ToString() );
+                Log.Emit("{0} = {1}", n, ( (int)rv & v ) == v  );
+            }
+
             return rv;
         }
 
@@ -310,7 +319,10 @@ namespace XR.MonoDevelop.Perforce
 
         public override string GetBaseText(FilePath localFile)
         {
-            return util.GetHeadRevisionText( localFile.FullPath );
+            Log.Emit("GetBaseText( {0} )", localFile.FullPath );
+            var rv = util.GetHeadRevisionText( localFile.FullPath );
+            Log.Emit("got {0} chars", rv.Length );
+            return rv;
         }
 
         protected override Revision[] OnGetHistory(FilePath localFile, Revision since)
@@ -320,31 +332,38 @@ namespace XR.MonoDevelop.Perforce
 
         public Revision[] GetHistory(FilePath localFile, Revision since, int count )
         {
-            var earliest = since as PerforceRevision;
-            var revs = util.GetRevisions( localFile.FullPath, count ).ToArray();
-            var rl = new List<Revision>();
-            if ( revs != null ){
-                if ( earliest != null ) {
-                    var tmp = ( from x in revs where x.Rev > earliest.P4Rev select x ).ToArray();
-                    revs = tmp;
-                }
-                foreach ( var r in revs ) 
-                {
-                    var shortdesc = r.Description;
-                    if ( shortdesc.Length > 40 )
-                        shortdesc = r.Description.Replace( Environment.NewLine, " " ).Substring(0,40);
-                    if ( r.Description.Length > 40 ) shortdesc += "..";
-                    var rr = new PerforceRevision( this, r.Timestamp, r.User, shortdesc ) {
-                        P4Rev = r.Rev,
-                        P4Change = r.Change,
-                        P4Action = r.Action,
-                        FilePath = localFile,
-                    };
-                    rl.Add( rr );
-                }
-            }
+            using ( var m = VersionControlService.GetProgressMonitor( "get file history", VersionControlOperationType.Other ) )
+            {
+                m.BeginStepTask("get revisions", count, 1);
+                var earliest = since as PerforceRevision;
+                var revs = util.GetRevisions( localFile.FullPath, count ).ToArray();
 
-            return rl.ToArray();
+                var rl = new List<Revision>();
+                if ( revs != null ){
+                    if ( earliest != null ) {
+                        var tmp = ( from x in revs where x.Rev > earliest.P4Rev select x ).ToArray();
+                        revs = tmp;
+                    }
+                    foreach ( var r in revs ) 
+                    {
+                        var shortdesc = r.Description;
+                        if ( shortdesc.Length > 40 )
+                            shortdesc = r.Description.Replace( Environment.NewLine, " " ).Substring(0,40);
+                        if ( r.Description.Length > 40 ) shortdesc += "..";
+                        var rr = new PerforceRevision( this, r.Timestamp, r.User, shortdesc ) {
+                            P4Rev = r.Rev,
+                            P4Change = r.Change,
+                            P4Action = r.Action,
+                            FilePath = localFile,
+                        };
+                        rl.Add( rr );
+                        m.Step(1);
+                    }
+                }
+                m.EndTask();
+                m.ReportSuccess("revisions fetched");
+                return rl.ToArray();
+            }
         }
 
         protected override IEnumerable<VersionInfo> OnGetVersionInfo(IEnumerable<FilePath> paths, bool getRemoteStatus)
@@ -355,36 +374,52 @@ namespace XR.MonoDevelop.Perforce
                 if ( Directory.Exists(f.FullPath) ) continue;
                 Log.Emit("OnGetVersionInfo() {0}", f);
                 var stat = util.FStat( f.FullPath );
+
+                foreach ( var s in stat )
+                    Log.Emit( "{0}={1}", s.Key, s.Value );
+
                 // mapped or edited
-                if ( stat != null && p4.HasTagValue( stat, "isMapped" ) ) {
+                if ( stat != null && p4.HasTag( stat, "isMapped" ) ) {
+                    var state = VersionStatus.Versioned;
                     var haverev = Int32.Parse( p4.FetchTagValue( stat, "haveRev" ) );
                     var headrev = Int32.Parse( p4.FetchTagValue( stat, "headRev" ) );
+                    if ( headrev == haverev ) 
+                    {
+                        if ( p4.HasTag( stat, "action" ) ) {
+                            var v = p4.FetchTagValue( stat, "action" );
+                            if ( v == "edit" ) 
+                                state |= VersionStatus.Modified;
+                        }
+                    } else {
+                        state |= VersionStatus.Conflicted;
+                    }
+                
                     var _have = util.GetRevisions( f.FullPath + "#" + haverev, 1 ).FirstOrDefault();
                     var _head = util.GetRevisions( f.FullPath + "#" + headrev, 1 ).FirstOrDefault();
 
                     if ( _head != null && _have != null ){
-                        var state = VersionStatus.Versioned;
-                        var head = new PerforceRevision( this, _head.Timestamp, _head.User, _head.Description ) {
-                            P4Action = _head.Action,
-                            P4Rev = _head.Rev,
-                            P4Change = _head.Change,
-                        };
-                        var have = new PerforceRevision( this, _have.Timestamp, _have.User, _have.Description ){
-                            P4Action = _have.Action,
-                            P4Rev = _have.Rev,
-                            P4Change = _have.Change,
-                        };
-
-                        if ( have.P4Action == "edit" ) 
-                            state |= VersionStatus.Modified;
-
-                        rv.Add( new VersionInfo( f, p4.FetchTagValue( stat, "depotFile" ), false, 
-                                                state, 
-                                                have, 
-                                                VersionStatus.Versioned,
-                                                head ));
+                    var head = new PerforceRevision( this, _head.Timestamp, _head.User, _head.Description ) {
+                        P4Action = _head.Action,
+                        P4Rev = _head.Rev,
+                        P4Change = _head.Change,
+                    };
+                    var have = new PerforceRevision( this, _have.Timestamp, _have.User, _have.Description ){
+                        P4Action = _have.Action,
+                        P4Rev = _have.Rev,
+                        P4Change = _have.Change,
+                    };
+                    
+                    if ( have.P4Action == "edit" ) 
+                        state |= VersionStatus.Modified;
+                    
+                    rv.Add( new VersionInfo( f, p4.FetchTagValue( stat, "depotFile" ), false, 
+                                            state, 
+                                            have, 
+                                            VersionStatus.Versioned,
+                                            head ));
                     }
                 }
+
             }
             return rv;
         }
@@ -418,6 +453,7 @@ namespace XR.MonoDevelop.Perforce
 
         protected override void OnCommit(ChangeSet changeSet, IProgressMonitor monitor)
         {
+
             throw new NotImplementedException();
         }
 
@@ -450,12 +486,20 @@ namespace XR.MonoDevelop.Perforce
 
         protected override void OnRevert(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
         {
-            foreach ( var f in localPaths ) 
+            Log.MonitorStart( monitor, localPaths.Length, "revert files" );
+            foreach ( var f in localPaths )              
             {
-                if ( util.IsEdited( f.FullPath ) ){
-                    util.Revert( f.FullPath, true );
+                if ( recurse ) { 
+                    util.Revert( f.FullPath + Path.DirectorySeparatorChar.ToString() + "...", true );
+                } else {
+                    if ( util.IsEdited( f.FullPath ) ){
+                        util.Revert( f.FullPath, true );
+                    }
                 }
+                Log.MonitorStep( monitor, 1 );
             }
+            Log.MonitorSuccess( monitor, "files reverted" );
+            Log.MonitorEnd( monitor );
         }
 
         protected override void OnRevertRevision(FilePath localPath, Revision revision, IProgressMonitor monitor)
@@ -480,6 +524,7 @@ namespace XR.MonoDevelop.Perforce
                     }
                 }
             }
+            Log.MonitorSuccess( monitor, "Edited {0} files", localPaths.Length );
             Log.MonitorEnd( monitor );
         }
 
@@ -513,8 +558,5 @@ namespace XR.MonoDevelop.Perforce
         }
 
         #endregion
-
-
     }
 }
-

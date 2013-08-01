@@ -24,31 +24,39 @@
     
     <Extension path = "/MonoDevelop/Ide/Commands/VersionControl">
         <!--- define 'new' commands here -->
+        <!---
         <Command id = "XR.MonoDevelop.Perforce.Commands.Submit" 
             _label = "Submit Changes..."
-            defaultHandler = "XR.MonoDevelop.Perforce.SubmitCommandHandler"
+            defaultHandler = "MonoDevelop.VersionControl.Commands.Commit"
             description = "Submit changes to the perforce server."/>
+            -->
         <Command id = "XR.MonoDevelop.Perforce.Commands.Sync" 
             _label = "Sync ..."
             defaultHandler = "XR.MonoDevelop.Perforce.SyncCommandHandler"
             description = "Sync with perforce"/>
+        <Command id = "XR.MonoDevelop.Perforce.Commands.Edit" 
+            _label = "Sync ..."
+            defaultHandler = "XR.MonoDevelop.Perforce.EditCommandHandler"
+            description = "Checkout a file for editing"/>
     </Extension>
     
     <!-- hook the above commands into things using the extensions below -->
     
     <Extension path = "/MonoDevelop/Ide/MainMenu/VersionControl">       
         <ItemSet id="Perforce" _label="Perforce">
+        <!--
             <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" />
-            <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" />
+            -->
+            <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Sync" _label = "P4 Sync" />
         </ItemSet>
     </Extension>
 
     <Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/VersionControl">
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label = "Submit"
+<!--
+                <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Submit" _label = "Submit"
         insertbefore="MonoDevelop.VersionControl.Commands.Publish"/>
-        
-        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Edit" _label = "Edit"
-         insertbefore="XR.MonoDevelop.Perforce.Commands.Submit"/>
+    -->    
+        <CommandItem id = "XR.MonoDevelop.Perforce.Commands.Edit" _label = "P4 Edit"/>
     </Extension>
     
     <Extension path = "/MonoDevelop/Ide/Pads/ProjectPad">

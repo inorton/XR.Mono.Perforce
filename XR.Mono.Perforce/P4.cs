@@ -44,7 +44,7 @@ namespace XR.Mono.Perforce
             return FetchTagValue( si, "userName" );
         }
 
-        public bool HasTagValue( List<P4ShellTag> tags, string key )
+        public bool HasTag( List<P4ShellTag> tags, string key )
         {
             var ct = ( from x in tags where x.Key == key select x ).Count();
             return ct != 0;
